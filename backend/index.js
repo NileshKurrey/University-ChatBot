@@ -2,7 +2,7 @@ import express from'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
-import { Clerk } from '@clerk/clerk-sdk-node'
+import { clerkMiddleware } from '@clerk/express'
 dotenv.config({
     path: "./.env",
   });
@@ -17,14 +17,14 @@ app.use(cors({
 }))
 app.use(cookieParser())
 app.use(express.urlencoded({extended:'true'}))
+app.use(express.json())
 
 
 //clerk Authentication 
-const clerk = new Clerk(process.env.CLERK_API_KEY)
-app.use(clerk.expressWithAuth({
-    apiKey: process.env.CLERK_API_KEY,
-    apiVersion: 2,
-}))
+app.use(clerkMiddleware(
+    { apiKey: process.env.CLERK_API_KEY, apiVersion: 2, frontendApi: process.env.CLERK_FRONTEND_API }
+    ))
+
 const PORT = process.env.PORT
 
 

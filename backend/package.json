@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/express": "^1.4.5",
     "@langchain/community": "^0.3.40",
     "@langchain/core": "^0.3.44",
     "@prisma/client": "^6.6.0",

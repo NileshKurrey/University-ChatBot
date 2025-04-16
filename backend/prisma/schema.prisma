@@ -20,7 +20,9 @@ model College {
   id              String     @id @default(auto()) @map("_id") @db.ObjectId
   name            String     @unique
   description     String
-  clerkId         String     // Admin who created it
+  clerkId         String  // Admin who created it
+  avatar          String
+  collegeUrl      String   
   vectorNamespace String     @unique
   documents       Document[]
   chatSessions    ChatSession[]
