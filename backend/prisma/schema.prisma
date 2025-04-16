@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId      String       @unique
+  email        String       @unique
+  role         String       @default("user") // 'user' or 'admin'
+  chatSessions ChatSession[]
+  createdAt    DateTime     @default(now())
+}
+
+model College {
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  name            String     @unique
+  description     String
+  clerkId         String     // Admin who created it
+  vectorNamespace String     @unique
+  documents       Document[]
+  chatSessions    ChatSession[]
+  createdAt       DateTime   @default(now())
+}
+
+model ChatSession {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  collegeId  String   @db.ObjectId
+  messages   Json     // Array of { content: String, isBot: Boolean, timestamp: DateTime }
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+  college    College  @relation(fields: [collegeId], references: [id])
+}
+
+model Document {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  collegeId    String   @db.ObjectId
+  fileName     String
+  fileType     String   // 'pdf', 'csv', 'docx'
+  status       String   @default("pending") // 'pending', 'processed', 'failed'
+  processedAt  DateTime?
+  college      College  @relation(fields: [collegeId], references: [id])
+}
