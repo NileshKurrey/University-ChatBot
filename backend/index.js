@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import { clerkMiddleware } from '@clerk/express'
+import adminRoutes from './routes/admin.route.js'
 dotenv.config({
     path: "./.env",
   });
@@ -22,8 +23,11 @@ app.use(express.json())
 
 //clerk Authentication 
 app.use(clerkMiddleware(
-    { apiKey: process.env.CLERK_API_KEY, apiVersion: 2, frontendApi: process.env.CLERK_FRONTEND_API }
+    { apiKey: process.env.CLERK_SECRET_KEY, apiVersion: 2, }
     ))
+
+    //Admin Routes
+app.use('/api/v1/admin', adminRoutes)
 
 const PORT = process.env.PORT
 

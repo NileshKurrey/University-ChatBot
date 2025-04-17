@@ -1,5 +1,5 @@
 import{requireAuth,getAuth,clerkClient}from '@clerk/express'
-import { ApiError } from '../utils/api-errors';
+import { ApiError } from '../utils/api-errors.js';
 
 const isAdmin = (req, res, next) => {
     const userId = getAuth(req).userId;
@@ -17,7 +17,7 @@ const isAdmin = (req, res, next) => {
         next();
     }).catch((err) => {
         console.error(err);
-        return res.status(500).json({ error: 'Internal Server Error' });
+       return new ApiError(500, 'Internal Server Error', [], 'Error retrieving user from Clerk');
     });
 };
 

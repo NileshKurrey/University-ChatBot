@@ -8,44 +8,43 @@ datasource db {
 }
 
 model User {
-  id           String       @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId      String       @unique
-  email        String       @unique
-  role         String       @default("user") // 'user' or 'admin'
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId      String        @unique
+  email        String        @unique
+  role         String        @default("user") // 'user' or 'admin'
   chatSessions ChatSession[]
-  createdAt    DateTime     @default(now())
+  createdAt    DateTime      @default(now())
 }
 
-model College {
-  id              String     @id @default(auto()) @map("_id") @db.ObjectId
-  name            String     @unique
+model CollegeBot {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  name            String        @unique
   description     String
-  clerkId         String  // Admin who created it
-  avatar          String
-  collegeUrl      String   
-  vectorNamespace String     @unique
+  clerkId         String // Admin who created it
+  logo            String
+  collegeUrl      String
+  vectorNamespace String?
   documents       Document[]
   chatSessions    ChatSession[]
-  createdAt       DateTime   @default(now())
+  createdAt       DateTime      @default(now())
 }
 
 model ChatSession {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String   @db.ObjectId
-  collegeId  String   @db.ObjectId
-  messages   Json     // Array of { content: String, isBot: Boolean, timestamp: DateTime }
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id])
-  college    College  @relation(fields: [collegeId], references: [id])
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @db.ObjectId
+  collegeId String     @db.ObjectId
+  messages  Json // Array of { content: String, isBot: Boolean, timestamp: DateTime }
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id])
+  college   CollegeBot @relation(fields: [collegeId], references: [id])
 }
 
 model Document {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  collegeId    String   @db.ObjectId
-  fileName     String
-  fileType     String   // 'pdf', 'csv', 'docx'
-  status       String   @default("pending") // 'pending', 'processed', 'failed'
-  processedAt  DateTime?
-  college      College  @relation(fields: [collegeId], references: [id])
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  collegeId   String     @db.ObjectId
+  fileName    String
+  fileType    String // 'pdf', 'csv', 'docx'
+  processedAt DateTime?  @default(now())
+  college     CollegeBot @relation(fields: [collegeId], references: [id])
 }
