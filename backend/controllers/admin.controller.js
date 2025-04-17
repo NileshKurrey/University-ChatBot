@@ -1,23 +1,24 @@
 import { ApiError } from "../utils/api-errors.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
-import {PrismaClient}from '@prisma/client'
-import {DocumentService} from '../utils/vectorparse.js'
+import { PrismaClient } from '@prisma/client'
+import { DocumentService } from '../utils/vectorparse.js'
 // create new University ChatBot
 const prisma = new PrismaClient()
- const CreateUni =asyncHandler(async (req, res) => {
+const CreateUni = asyncHandler(async (req, res) => {
     const data = JSON.parse(req.body.mybody)
-    const { name, description, logo, collegeUrl,clerkId} = data;
-    
+    const { name, description, logo, collegeUrl, clerkId } = data;
+
     const files = req.files
-    if(!name || !description || !logo || !collegeUrl ) {
+
+    if (!name || !description || !logo || !collegeUrl) {
         throw new ApiError(400, "All fields are required", [], "All fields are required");
     }
-    if(!clerkId) {
+    if (!clerkId) {
         throw new ApiError(403, "Unauthorized", [], "User ID is required");
     }
-    
-    if(files.length === 0) {
+
+    if (files.length === 0) {
         throw new ApiError(400, "Atleast One document require", [], "one docoument is required for Vector store and context aware");
     }
     const isExist = await prisma.collegeBot.findFirst({
@@ -25,8 +26,8 @@ const prisma = new PrismaClient()
             name: name,
         }
     })
-    
-    if(isExist) {
+
+    if (isExist) {
         throw new ApiError(400, "University already exists", [], "University already exists");
     }
     console.log('we are here')
@@ -38,57 +39,88 @@ const prisma = new PrismaClient()
             logo,
             collegeUrl,
             clerkId,
-            vectorNamespace:null
+            vectorNamespace: null
         }
     })
     console.log(university)
-    if(!university) {
+    if (!university) {
         throw new ApiError(400, "University not created", [], "University not created");
     }
     const collegeId = university.id
     let namespace;
-    files.forEach(async (file)=>{
-        console.log(file)
-       const parsedData =  await DocumentService(file, collegeId)
-       if(parsedData.success){
-        await prisma.document.create({
-            data:{
-                collegeId,
-                fileName: file.originalname,
-                fileType: file.mimetype,
-               
-            }
-        })
-        if (!namespace) {
-            namespace = parsedData.namespace;
-        }
-       }
-       else{
-           await prisma.collegeBot.delete({
-            where: {
-                id: collegeId,
-            }
-           })
-        throw new ApiError(400, "Document not processed", [], "Document not processed");
-       }
+    for (const file of files) {
+        const parsedData = await DocumentService(file, collegeId);
+        if (parsedData.success) {
+            await prisma.document.create({
+                data: {
+                    collegeId,
+                    fileName: file.originalname,
+                    fileType: file.mimetype,
+                },
+            });
 
-    })
+            if (!namespace) {
+                namespace = parsedData.namespace;
+            }
+        } else {
+            await prisma.collegeBot.delete({ where: { id: collegeId } });
+            throw new ApiError(400, "Document not processed", [], "Document not processed");
+        }
+    }
     // Update the collegeBot with the namespace
-    console.log('vectorNamespace',namespace)      
-     let collegebot = await prisma.collegeBot.update({
+    console.log('vectorNamespace', namespace)
+    let collegebot = await prisma.collegeBot.update({
         where: {
             id: collegeId,
         },
         data: {
-            vectorNamespace:namespace,
+            vectorNamespace: namespace,
         }
     })
-    console.log('university',collegebot)
-    return res.status(201).json(new ApiResponse(201, collegebot,"University Bot Created Successfully" ))
+    console.log('university', collegebot)
+    return res.status(201).json(new ApiResponse(201, collegebot, "University Bot Created Successfully"))
 })
 
-// Add University Data
-// add University docs
+// Add University docs
+const AddUniversityData = asyncHandler(async (req, res) => {
+    const { collegeId } = req.params
+    const files = req.files
+    let collegebot = await prisma.collegeBot.findFirst({
+        where: {
+            id: collegeId,
+        }
+    })
+    if (!collegebot) {
+        throw new ApiError(400, "College Bot not found", [], "University not found");
+    }
+    if (files.length === 0) {
+        throw new ApiError(400, "Atleast One document require", [], "one docoument is required for Vector store and context aware");
+    }
+    let documents = []
+    for (const file of files) {
+        const parsedData = await DocumentService(file, collegeId);
+        try {
+            if (parsedData.success) {
+                let document = await prisma.document.create({
+                    data: {
+                        collegeId,
+                        fileName: file.originalname,
+                        fileType: file.mimetype,
+                    },
+                });
+                documents.push(document)
+            }
+
+        }
+        catch (error) {
+
+            throw new ApiError(400, "Document not processed", [], "Document not processed");
+        }
+
+    } 
+    return res.status(201).json(new ApiResponse(201, documents, "Documents uploaded Successfully"))
+})
+
 // update University Chatbot
 // Get University All Chatbot
 // Get University Data by Id
@@ -103,4 +135,4 @@ const prisma = new PrismaClient()
 // unmake admin
 
 
-export {CreateUni}
+export { CreateUni, AddUniversityData }
