@@ -49,6 +49,7 @@ const DocumentService = async (file, collegeId) => {
       model: "mistral-embed",
       apiKey:process.env.MISTRAL_AI 
     });
+    
 // 4. Pinecone Vector DB
 const pinecone = new PineconeClient({
   apiKey: process.env.PINECONE_API_KEY,
