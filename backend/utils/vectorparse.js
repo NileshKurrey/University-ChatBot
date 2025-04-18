@@ -6,7 +6,10 @@ import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import mammoth from 'mammoth';
 import { Document } from 'langchain/document';
 import { ApiError } from './api-errors.js';
-
+const pinecone = new PineconeClient({
+  apiKey: process.env.PINECONE_API_KEY,
+  // environment: process.env.PINECONE_ENVIRONMENT // Add this line
+});
 const DocumentService = async (file, collegeId) => {
   let documents;
 
@@ -51,11 +54,8 @@ const DocumentService = async (file, collegeId) => {
     });
     
 // 4. Pinecone Vector DB
-const pinecone = new PineconeClient({
-  apiKey: process.env.PINECONE_API_KEY,
-  // environment: process.env.PINECONE_ENVIRONMENT // Add this line
-});
 
+const index = pinecone.Index(process.env.PINECONE_INDEX);
     // Create index if not exists
     try {
       await pinecone.createIndex({
@@ -68,6 +68,7 @@ const pinecone = new PineconeClient({
             region: 'us-east-1' 
           }
         }
+        
       });
       console.log('Index created successfully');
     } catch (error) {
@@ -78,7 +79,7 @@ const pinecone = new PineconeClient({
     
 
     try {
-      const index = pinecone.Index(process.env.PINECONE_INDEX);
+     
       const namespace = `college-${collegeId}`;
 
       // Create vectors with proper structure
@@ -99,7 +100,7 @@ const pinecone = new PineconeClient({
       const BATCH_SIZE = 400;
       for (let i = 0; i < vectors.length; i += BATCH_SIZE) {
         const batch = vectors.slice(i, i + BATCH_SIZE);
-        await index.upsert(batch, { namespace });
+        await index.namespace(namespace).upsert(batch);
       }
 
       console.log('Successfully upserted', vectors.length, 'vectors');
@@ -120,5 +121,39 @@ const pinecone = new PineconeClient({
     throw new ApiError(400, "Document not processed", [], error.message);
   }
 };
+const deleteDocument= async(namespace)=>{
+  console.log(namespace)
+  try {
 
-export { DocumentService };
+   
+    const index = pinecone.Index(process.env.PINECONE_INDEX);
+   
+    const indexList = await pinecone.listIndexes();
+    console.log(indexList.indexes.some(index => index.name === process.env.PINECONE_INDEX))
+    if (!indexList.indexes.some(index => index.name === process.env.PINECONE_INDEX)){
+       
+      throw new Error(`Index ${process.env.PINECONE_INDEX} not found`);
+    }
+     // Verify namespace exists
+     const stats = await index.describeIndexStats();
+     if (!stats.namespaces?.[namespace]) {
+       return {
+         success: true,
+         message: "Namespace already empty",
+       };
+     }
+    
+    await index.namespace(namespace).deleteAll({
+      filter:{}
+    })
+    return {
+      success: true,
+      message: "Document deleted successfully",
+    }
+  } catch (error) {
+    console.error('Document deletion error:', error);
+    throw new ApiError(400, "Document not deleted", [], error.message);
+    
+  }
+}
+export { DocumentService, deleteDocument };

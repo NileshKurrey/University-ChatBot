@@ -2,7 +2,7 @@ import { ApiError } from "../utils/api-errors.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { PrismaClient } from '@prisma/client'
-import { DocumentService } from '../utils/vectorparse.js'
+import { deleteDocument, DocumentService } from '../utils/vectorparse.js'
 // create new University ChatBot
 const prisma = new PrismaClient()
 const CreateUni = asyncHandler(async (req, res) => {
@@ -122,17 +122,93 @@ const AddUniversityData = asyncHandler(async (req, res) => {
 })
 
 // update University Chatbot
-// Get University All Chatbot
-// Get University Data by Id
 
+  const updateBot = asyncHandler(async (req, res) => {
+    const { collegeId } = req.params
+    const data = req.body
+    const { name, description, logo, collegeUrl } = data;
+    let collegebot = await prisma.collegeBot.findFirst({
+        where: {
+            id: collegeId,
+        }
+    })
+    if (!collegebot) {
+        throw new ApiError(400, "College Bot not found", [], "University not found");
+    }
+    let updatedBot = await prisma.collegeBot.update({
+        where: {
+            id: collegeId,
+        },
+        data: {
+            name,
+            description,
+            logo,
+            collegeUrl
+        }
+    })
+    return res.status(200).json(new ApiResponse(200, updatedBot, "University Bot Updated Successfully"))
+})
+// Get University All Chatbot
+const GetAllUniversity = asyncHandler(async (req,res) => {
+    const university = await prisma.collegeBot.findMany({
+        include: {
+            documents: true,
+        }
+    })
+    return res.status(200).json(new ApiResponse(200, university, "successfully fetched all University Bot"))
+})
+// Get University Data by Id
+const getBot = async(req,res)=>{
+    const {collegeId} = req.params
+    const collegetbot = await prisma.collegeBot.findFirst({
+        where:{
+            id:collegeId
+        }
+    })
+    if(!collegetbot){
+        throw new ApiError(400, "College Bot not found", [], "University not found");
+    }
+    return res.status(200).json(new ApiResponse(200, collegetbot, `successfully fetched ${collegetbot.name} University Bot`))
+}
+// Delete University Chatbot
+const deleteBot = asyncHandler(async (req, res) => {
+    const { collegeId } = req.params
+    const collegebot = await prisma.collegeBot.findFirst({
+        where: {
+            id: collegeId,
+        }
+    })
+    if (!collegebot) {
+        throw new ApiError(400, "College Bot not found", [], "University not found");
+    }
+   const namespace = collegebot.vectorNamespace
+    const deleteVectors = await deleteDocument(namespace)
+    if (!deleteVectors) {
+        throw new ApiError(400, "Vectors not deleted", [], "Vectors not deleted");
+    }
+    if(deleteVectors.success == false){
+        throw new ApiError(400, "Vectors not deleted", [], "Vectors not deleted");
+        
+    }
+    await prisma.document.deleteMany({
+        where: {
+            collegeId: collegeId,
+        }
+    })
+    await prisma.collegeBot.delete({
+        where: {
+            id: collegeId,
+        }
+    })
+    return res.status(200).json(new ApiResponse(200, {}, "University Bot Deleted Successfully"))
+})
 //get All Users
 // Update User
 // Delete User
 // Get User By ID
-
 // total admins
 // make admin
 // unmake admin
 
 
-export { CreateUni, AddUniversityData }
+export { CreateUni, AddUniversityData, updateBot,GetAllUniversity,getBot,deleteBot };
