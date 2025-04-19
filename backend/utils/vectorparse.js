@@ -156,4 +156,6 @@ const deleteDocument= async(namespace)=>{
     
   }
 }
+
+// const getContext = async()
 export { DocumentService, deleteDocument };
