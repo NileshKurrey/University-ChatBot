@@ -167,7 +167,6 @@ const deleteDocument= async(namespace)=>{
 }
 const getContext = async(namespace,query)=>{
   const querryembings = await embeddings.embedQuery(query)
-  console.log(querryembings)
   try {
     const index = pinecone.Index(process.env.PINECONE_INDEX);
     const result = await index.namespace(namespace).query({
