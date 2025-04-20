@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import { clerkMiddleware } from '@clerk/express'
 import adminRoutes from './routes/admin.route.js'
+import chatRoutes from './routes/chat.routes.js'
 dotenv.config({
     path: "./.env",
   });
@@ -28,7 +29,7 @@ app.use(clerkMiddleware(
 
     //Admin Routes
 app.use('/api/v1/admin', adminRoutes)
-
+app.use('/api/v1/chat', chatRoutes)
 const PORT = process.env.PORT
 
 

@@ -1,7 +1,9 @@
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv';
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { MistralAIEmbeddings } from "@langchain/mistralai";
+// import { MistralAIEmbeddings } from "@langchain/mistralai";
+// import { OpenAIEmbeddings } from "@langchain/openai";
+import { PineconeEmbeddings } from '@langchain/pinecone';
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import mammoth from 'mammoth';
 import { Document } from 'langchain/document';
@@ -10,6 +12,18 @@ const pinecone = new PineconeClient({
   apiKey: process.env.PINECONE_API_KEY,
   // environment: process.env.PINECONE_ENVIRONMENT // Add this line
 });
+  // 3. Generate Embeddings using Mistral LLM
+  // const embeddings = new MistralAIEmbeddings({
+  //   model: "mistral-embed",
+  //   apiKey:process.env.MISTRAL_AI 
+  // });
+
+  const embeddings = new PineconeEmbeddings({
+    model: "multilingual-e5-large",
+    apiKey: process.env.PINECONE_API_KEY,
+  });
+
+
 const DocumentService = async (file, collegeId) => {
   let documents;
 
@@ -47,12 +61,7 @@ const DocumentService = async (file, collegeId) => {
     const docs = await splitter.splitDocuments(documents);
     console.log('Documents Split:', docs.length);
 
-    // 3. Generate Embeddings using HuggingFace
-    const embeddings = new MistralAIEmbeddings({
-      model: "mistral-embed",
-      apiKey:process.env.MISTRAL_AI 
-    });
-    
+  
 // 4. Pinecone Vector DB
 
 const index = pinecone.Index(process.env.PINECONE_INDEX);
@@ -94,6 +103,7 @@ const index = pinecone.Index(process.env.PINECONE_INDEX);
             page: doc.metadata?.page || 1
           }
         }))
+
       );
 
       // Batch upsert in chunks of 100 (Pinecone limit)
@@ -122,7 +132,6 @@ const index = pinecone.Index(process.env.PINECONE_INDEX);
   }
 };
 const deleteDocument= async(namespace)=>{
-  console.log(namespace)
   try {
 
    
@@ -156,6 +165,27 @@ const deleteDocument= async(namespace)=>{
     
   }
 }
-
-// const getContext = async()
-export { DocumentService, deleteDocument };
+const getContext = async(namespace,query)=>{
+  const querryembings = await embeddings.embedQuery(query)
+  console.log(querryembings)
+  try {
+    const index = pinecone.Index(process.env.PINECONE_INDEX);
+    const result = await index.namespace(namespace).query({
+      topK: 5,
+      vector: querryembings,
+      includeMetadata: true,
+      includeValues: false,
+    })
+    return result.matches.map((match) => ({
+      id: match.id,
+      score: match.score,
+      text: match.metadata.text,
+      page: match.metadata.page,
+      source: match.metadata.source,
+    }))
+  } catch (error) {
+    console.error('Error fetching context:', error);
+    throw new ApiError(500, "Context fetch failed", [], error.message);
+  }
+}
+export { DocumentService, deleteDocument, getContext };
