@@ -27,6 +27,12 @@ const SYSTEM_PROMPT_TEMPLATE =
    - Always clarify that it's **not from official college documents**.
 6. Never cite external websites or say "according to Google."
 7. Prioritize clarity, professionalism, and helpfulness.
+8. Start with Title and give hedings and subheadings for each section. also make format in marked language for parsing the response in beatifull html.
+9. If needed, ask clarifying questions to understand the user's request better.
+10. If long answers are required, break them into sections or bullet points for better readability.
+11. **Avoid chit-chat** unless the user initiates it.
+12. generate long answers if required
+13. chunk the response in single line and send it to the user
 
 📚 Example Behaviors:
 
@@ -64,7 +70,7 @@ const ChatAi = asyncHandler(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
   
     const { collegeId } = req.params;
-    const message =  'what is fs module in net js js'; // Use dynamic input
+    const message =  req.body.message 
   
     try {
       // Fetch college bot and context
@@ -92,10 +98,10 @@ const ChatAi = asyncHandler(async (req, res) => {
       let fullResponse = '';
       for await (const chunk of stream) {
           fullResponse += chunk.content;
-      }
-      console.log(fullResponse)
-     // Send final response metadata
-     res.write(new ApiResponse(200, fullResponse).toString());
+          res.write(`data: ${chunk.content}\n\n`); // Send each chunk to the client
+        }
+        // Send final response metadata
+        console.log(fullResponse)
 
       res.end();
     } catch (error) {
