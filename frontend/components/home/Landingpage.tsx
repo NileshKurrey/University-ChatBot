@@ -5,10 +5,14 @@ import { useAuth } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import Image from 'next/image'
 import heroImg from '@/public/herosectioin.svg'
+import { motion } from 'framer-motion';
+import { MessageSquare, Clock, BookOpen, MapPin } from 'lucide-react';
 export default function  LandingPage() {
     const { userId } = useAuth();
   return (
     <>
+
+    {/* This is Navbar Section */}
       <nav className="flex items-center justify-between flex-wrap p-6">
         <div className="flex items-center justify-items-start"> 
              <h1 className="m-4 text-4xl color font-bold text-black cursor-pointer">University.Ai</h1>
@@ -60,6 +64,51 @@ export default function  LandingPage() {
         </div>
         <div>
           <Image src={heroImg} alt="Landing Page Image" className="w-[500px] h-[500px] object-cover" />
+        </div>
+      </section>
+      {/* --- 2. Features Grid --- */}
+      <section className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">
+            Why Students Love ChatUniversity.AI
+          </h2>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { 
+                icon: <Clock className="w-8 h-8 text-green-400" />,
+                title: "Always Available",
+                text: "Get help with deadlines and services anytime"
+              },
+              { 
+                icon: <BookOpen className="w-8 h-8 text-green-400" />,
+                title: "Course Companion", 
+                text: "Instant access to syllabi and lecture notes"
+              },
+              { 
+                icon: <MessageSquare className="w-8 h-8 text-green-400" />,
+                title: "Get Letest Information of Colleges",
+                text: "Never miss exams or payment deadlines"
+              },
+              { 
+                icon: <MapPin className="w-8 h-8 text-green-400" />,
+                title: "Campus Guide",
+                text: "Find rooms and event locations instantly"
+              }
+            ].map((feature, index) => (
+              <motion.div 
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+              >
+                <div className="mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.text}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
     </>
