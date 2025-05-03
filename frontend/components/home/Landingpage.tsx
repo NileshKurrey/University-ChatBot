@@ -18,14 +18,10 @@ const Clock = dynamic(() => import('lucide-react').then(mod => mod.Clock), { ssr
 const BookOpen = dynamic(() => import('lucide-react').then(mod => mod.BookOpen), { ssr: false });
 const MapPin = dynamic(() => import('lucide-react').then(mod => mod.MapPin), { ssr: false });
 const Users = dynamic(() => import('lucide-react').then(mod => mod.Users), { ssr: false });
-
+const IoChatbubbles = dynamic(() => import('react-icons/io5').then(mod => mod.IoChatbubbles), { ssr: false });
 
 const features = [
-  {
-    icon: <Clock />,
-    title: "Always Available",
-    text: "24/7 access to academic support and campus resources"
-  },
+  
   {
     icon: <Clock className="w-8 h-8 text-blue-600" />,
     title: "Always Available",
@@ -36,7 +32,11 @@ const features = [
     title: "Course Companion",
     text: "Instant access to syllabi and lecture notes"
   },
-
+  { 
+    icon: <MessageSquare className="w-8 h-8 text-blue-600" />,
+    title: "Smart Reminders",
+    text: "Never miss exams or payment deadlines"
+  },
   {
     icon: <MapPin className="w-8 h-8 text-blue-600" />,
     title: "Campus Guide",
@@ -60,7 +60,7 @@ export default function LandingPage() {
       {/* This is Navbar Section */}
       <nav className="flex items-center justify-between flex-wrap p-6">
         <div className="flex items-center justify-items-start">
-          <h1 className="m-4 text-4xl color font-bold text-black cursor-pointer">ChatUniversity.AI</h1>
+          <h1 className="flex items-center gap-1 m-4 text-4xl color font-bold text-black cursor-pointer"><IoChatbubbles/>ChatUniversity.AI</h1>
         </div>
 
         <div className="flex items-center justify-around w-[50%]">
@@ -367,7 +367,7 @@ export default function LandingPage() {
       <footer className="bg-white text-black py-8 px-4 mt-10">
        <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div>
-            <h1 className="text-4xl font-bold text-black cursor-pointer">ChatUniversity.AI</h1>
+            <h1 className="flex items-center gap-1 text-4xl font-bold text-black cursor-pointer"><IoChatbubbles/>ChatUniversity.AI</h1>
             <p className="text-gray-500 mt-2">Your AI-powered campus companion.</p>
           </div>
           <div>
