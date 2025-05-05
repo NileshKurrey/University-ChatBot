@@ -1,6 +1,7 @@
 'use client'
 
 import BotCard from "@/components/Chats/card"
+import { SkeletonLoader } from "@/components/Chats/skeletonLoader"
 import Navbar from "@/components/home/Navbar"
 import { useBotStore } from "@/store/userBotStore"
 import { useUser } from "@clerk/nextjs"
@@ -21,8 +22,16 @@ export default function Chats() {
     <h2 className="text-2xl font-bold">Welcome To ChatUniversity.AI</h2>
    </div>
     <div className="flex items-center justify-center  w-full ">
-      <div className="flex gap-10 flex-wrap m-10  justify-center">
-        {loading?<>Fetching College Bot</>:<>
+      <div className="flex gap-10 flex-wrap m-10 items-start  justify-center">
+        {loading?<>
+          <SkeletonLoader/>
+          <SkeletonLoader/>
+          <SkeletonLoader/>
+          <SkeletonLoader/>
+          <SkeletonLoader/>
+          <SkeletonLoader/>
+          <SkeletonLoader/>
+        </>:<>
         {error?<></>:<>
         {bots.data.map((bot) => (
           <BotCard key={bot.id} bot={bot} />

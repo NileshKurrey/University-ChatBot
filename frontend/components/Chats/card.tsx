@@ -2,6 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import {Card, CardContent, CardFooter, CardTitle} from '@/components/ui/card'
 import { Button } from '../ui/button'
+import Link from 'next/link'
 import link from '@/public/bot.png'
 interface Bot {
   id: string;
@@ -27,7 +28,12 @@ function BotCard({bot}:BotCardProps) {
      <p className='text-gray-700 text-wrap '>{bot.description}</p>
     </CardContent>
     <CardFooter>
+      <div>
+      <Link href={`chats/c/${bot.id}`}>
       <Button variant="default" className='bg-gradient-to-r text-white from-green-600 to-green-300 w-full cursor-pointer'>Start Chat</Button>
+        
+      </Link>
+      </div>
     </CardFooter>
    </Card>
     </>
