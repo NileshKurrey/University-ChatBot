@@ -4,22 +4,25 @@ interface ApiOptions extends AxiosRequestConfig {
   headers?: Record<string, string>;
   type?: 'get' | 'post' | 'put' | 'delete'; // Added type for method
 }
-
-interface Bot {
-  id: string;
-  name: string;
-  description: string;
-  logo:string
-  collegeUrl:string
-  // Add other bot properties as needed
+interface Bot{
+    id: string;
+    name: string;
+    description: string;
+    logo:string
+    collegeUrl:string
 }
-
+interface BotListResponse {
+    status: number;
+    data: Bot[];
+    message?: string;
+    success?:boolean
+  }
 class ApiClient {
   private baseUrl: string;
   private defaultHeaders: Record<string, string>;
 
   constructor() {
-    this.baseUrl = process.env.BASE_URL || 'http://localhost:3000/api';
+    this.baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1'; // Provide a default or fallback value
     this.defaultHeaders = {
       'Content-Type': 'application/json', // Fixed typo
       'Accept': 'application/json'
@@ -52,8 +55,9 @@ class ApiClient {
   }
 
   // Specific bot methods
-  public async getAllBots(): Promise<Bot[]> {
-    return this.customFetch<Bot[]>('/getAllBots', {
+  public async getAllBots(): Promise<BotListResponse> {
+    console.log(this.baseUrl,'/admin/getAllbot')
+    return this.customFetch<BotListResponse>('/admin/getAllBot', {
       type: 'get'
     });
   }
