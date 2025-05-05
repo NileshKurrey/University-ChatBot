@@ -3,12 +3,15 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import { useAuth } from "@clerk/nextjs";
-import { UserButton } from "@clerk/nextjs";
+
 import Image from 'next/image'
 import heroImg from '@/public/herosectioin.svg'
 import { motion } from 'framer-motion';
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import Navbar from "./Navbar";
+import Footer from "./footer";
+import Loading from "@/app/loading";
 
 const MessageSquare = dynamic(() => import('lucide-react').then(mod => mod.MessageSquare), { ssr: false });
 const ArrowRight = dynamic(() => import('lucide-react').then(mod => mod.ArrowRight), { ssr: false });
@@ -18,7 +21,6 @@ const Clock = dynamic(() => import('lucide-react').then(mod => mod.Clock), { ssr
 const BookOpen = dynamic(() => import('lucide-react').then(mod => mod.BookOpen), { ssr: false });
 const MapPin = dynamic(() => import('lucide-react').then(mod => mod.MapPin), { ssr: false });
 const Users = dynamic(() => import('lucide-react').then(mod => mod.Users), { ssr: false });
-const IoChatbubbles = dynamic(() => import('react-icons/io5').then(mod => mod.IoChatbubbles), { ssr: false });
 
 const features = [
   
@@ -53,43 +55,12 @@ export default function LandingPage() {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) return null;
+  if (!isMounted) return <Loading />;
   return (
     <>
 
       {/* This is Navbar Section */}
-      <nav className="flex items-center justify-between flex-wrap p-6">
-        <div className="flex items-center justify-items-start">
-          <h1 className="flex items-center gap-1 m-4 text-4xl color font-bold text-black cursor-pointer"><IoChatbubbles/>ChatUniversity.AI</h1>
-        </div>
-
-        <div className="flex items-center justify-around w-[50%]">
-          <ul className="flex space-x-4 text-black">
-            <li className="text-2xl space-x-2 font-medium cursor-pointer hover:text-gray-800">Home</li>
-            <li className="text-2xl space-x-2 font-medium cursor-pointer hover:text-gray-800">About</li>
-            <li className="text-2xl  space-x-2 font-medium cursor-pointer hover:text-gray-800">Contact</li>
-          </ul>
-
-          {userId ? <><UserButton appearance={{
-            elements: {
-              // For the avatar container
-              userButtonAvatarBox: {
-                width: "50px",
-                height: "50px",
-                borderRadius: "50%",
-              },
-            },
-          }} /></> : <>
-            <div className="flex items-center justify-around space-x-4">
-              <Link href='/sign-in'>
-                <Button variant={"outline"} className="cursor-pointer">Sign In</Button>
-              </Link>
-              <Link href='/sign-up'>
-                <Button variant={"default"} className="cursor-pointer">Sign Up</Button>
-              </Link></div></>}
-        </div>
-      </nav>
-
+      <Navbar/>
       <section className="flex items-strart justify-around w-full h-screen">
         <div className="flex flex-col items-start justify- mt-25 flex-wrap w-[50%]">
           <h1 className="text-6xl font-bold text-black">Meet Your 24/7 Campus Companion 🤖</h1>
@@ -364,26 +335,7 @@ export default function LandingPage() {
         </div>
       </section>
       {/* --- 4. Footer --- */}
-      <footer className="bg-white text-black py-8 px-4 mt-10">
-       <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div>
-            <h1 className="flex items-center gap-1 text-4xl font-bold text-black cursor-pointer"><IoChatbubbles/>ChatUniversity.AI</h1>
-            <p className="text-gray-500 mt-2">Your AI-powered campus companion.</p>
-          </div>
-          <div>
-            <ul className="flex space-x-4 text-black">
-              <li className="text-lg font-medium cursor-pointer text-gray-800 hover:text-gray-900">Privacy Policy</li>
-              <li className="text-lg font-medium cursor-pointer text-gray-800 hover:text-gray-900">Terms of Service</li>
-              <li className="text-lg font-medium cursor-pointer text-gray-800 hover:text-gray-900">Contact Us</li>
-            </ul>
-          </div>
-        </div>
-        <hr />
-        <div className="flex items-center justify-between max-w-6xl mx-auto mt-4">
-          <p className="text-gray-500">Made with ❤️ by ChatUniversity.AI Team</p>
-          <p className="text-gray-500"> © {new Date().getFullYear()} ChatUniversity.AI. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer/>
     </>
   );
 }
