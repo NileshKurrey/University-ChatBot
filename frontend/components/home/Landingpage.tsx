@@ -7,11 +7,10 @@ import { useAuth } from "@clerk/nextjs";
 import Image from 'next/image'
 import heroImg from '@/public/herosectioin.svg'
 import { motion } from 'framer-motion';
-import { useEffect, useState } from "react";
+
 import dynamic from "next/dynamic";
 import Navbar from "./Navbar";
 import Footer from "./footer";
-import Loading from "@/app/loading";
 
 const MessageSquare = dynamic(() => import('lucide-react').then(mod => mod.MessageSquare), { ssr: false });
 const ArrowRight = dynamic(() => import('lucide-react').then(mod => mod.ArrowRight), { ssr: false });
@@ -49,13 +48,7 @@ const features = [
 export default function LandingPage() {
 
   const { userId } = useAuth();
-  const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) return <Loading />;
   return (
     <>
 

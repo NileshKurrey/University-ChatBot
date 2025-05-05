@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-
+import { Suspense } from "react";
 import "./globals.css";
-
+import Loading from "./loading";
 
 
 const geistSans = Geist({
@@ -33,10 +33,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-
+          <Suspense fallback={<Loading/>}>
         {children}
 
-          
+          </Suspense>
       </body>
     </html>
         </ClerkProvider>
