@@ -70,8 +70,7 @@ const ChatAi = asyncHandler(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
   
     const { collegeId } = req.params;
-    const message =  req.body.message 
-  
+    const {message,history=[]} = req.body
     try {
       // Fetch college bot and context
       const collegebot = await prisma.collegeBot.findFirst({ where: { id: collegeId }, select: { name: true, vectorNamespace: true ,id:true} });
@@ -88,7 +87,7 @@ const ChatAi = asyncHandler(async (req, res) => {
       const promptInputs = {
         collegeName: collegebot.name,
         context: context.map(c => c.text).join('\n\n'),
-        history: [], // Add conversation history logic here
+        history: history, // Add conversation history logic here
         message: message
     };
   // procces the the response
@@ -98,11 +97,17 @@ const ChatAi = asyncHandler(async (req, res) => {
       let fullResponse = '';
       for await (const chunk of stream) {
           fullResponse += chunk.content;
-          res.write(`data: ${chunk.content}\n\n`); // Send each chunk to the client
+          res.write(`data: ${JSON.stringify({ 
+            type: 'chunk',
+            content: chunk.content 
+        })}\n\n`); // Send each chunk to the client
         }
         // Send final response metadata
         console.log(fullResponse)
-
+      //   res.write(`data: ${JSON.stringify({
+      //     type: 'complete',
+         
+      // })}\n\n`);
       res.end();
     } catch (error) {
       console.error('Server Is Busy Try After some Time', error);

@@ -10,7 +10,7 @@ interface Bot {
   collegeUrl: string;
 }
 
-interface BotListResponse {
+interface BotListResponse<> {
   statusCode: number | null;
   data: Bot[];
   message?: string;
@@ -23,6 +23,7 @@ interface BotState {
   loading: boolean;
   error: string | null;
   fetchBots: () => Promise<void>;
+  getBotById: (collegeId: string) => Promise<void>
 }
 export const useBotStore = create<BotState>()(
     immer((set)=>({
@@ -39,7 +40,6 @@ export const useBotStore = create<BotState>()(
         set({ loading: true, error: null });
         try {
           const response = await apiClient.getAllBots();
-          console.log('API Response:', response);
           
           if (response.status !< 300) {
             throw new Error(response.message || 'Failed to fetch bots');
@@ -54,6 +54,24 @@ export const useBotStore = create<BotState>()(
             },
             loading: false 
           });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error('Fetch error:', errorMessage);
+          set({ 
+            error: errorMessage,
+            loading: false 
+          });
+        }
+      },
+      getBotById: async(collegeId:string)=>{
+        try {
+          const response =await apiClient.getBotById(collegeId)
+          if (response.status !< 300) {
+            throw new Error(response.message || 'Failed to fetch bot');
+          }
+          set({
+           currentBot:response.currentBot
+          })
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           console.error('Fetch error:', errorMessage);

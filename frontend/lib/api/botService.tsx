@@ -13,7 +13,8 @@ interface Bot{
 }
 interface BotListResponse {
     status: number;
-    data: Bot[];
+    data: Bot[] ;
+    currentBot:Bot;
     message?: string;
     success?:boolean
   }
@@ -56,10 +57,16 @@ class ApiClient {
 
   // Specific bot methods
   public async getAllBots(): Promise<BotListResponse> {
-    console.log(this.baseUrl,'/admin/getAllbot')
+    
     return this.customFetch<BotListResponse>('/admin/getAllBot', {
       type: 'get'
     });
+  }
+
+  public async getBotById(link:string): Promise<BotListResponse>{
+      return this.customFetch<BotListResponse>(`/admin/getCurrent/${link}`,{
+        type:'get',
+      })
   }
 }
 
